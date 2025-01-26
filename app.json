@@ -1,0 +1,86 @@
+{
+	"expo": {
+		"name": "ExpenseTrackerNew",
+		"slug": "expense-tracker-new",
+		"scheme": "expense-tracker-new",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/icon.png",
+		"userInterfaceStyle": "automatic",
+		"assetBundlePatterns": ["**/*"],
+		"newArchEnabled": true,
+		"ios": {
+			"supportsTablet": true,
+			"config": {
+				"usesNonExemptEncryption": false
+			},
+			"splash": {
+				"image": "./assets/splash.png",
+				"resizeMode": "cover",
+				"backgroundColor": "#ffffff",
+				"dark": {
+					"backgroundColor": "#000000",
+					"resizeMode": "cover",
+					"image": "./assets/splash-dark.png"
+				}
+			}
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/adaptive-icon.png"
+			},
+			"splash": {
+				"image": "./assets/splash.png",
+				"resizeMode": "cover",
+				"backgroundColor": "#ffffff",
+				"dark": {
+					"backgroundColor": "#000000",
+					"resizeMode": "cover",
+					"image": "./assets/splash-dark.png"
+				}
+			}
+		},
+		"experiments": {
+			"typedRoutes": true
+		},
+		"plugins": [
+			[
+				"expo-font",
+				{
+					"fonts": [
+						"assets/fonts/Poppins-Regular.ttf",
+						"assets/fonts/Poppins-Light.ttf",
+						"assets/fonts/Poppins-Bold.ttf",
+            "assets/fonts/Poppins-SemiBold.ttf",
+						"assets/fonts/Poppins-ExtraBold.ttf",
+            "assets/fonts/Poppins-Italic.ttf"
+					]
+				}
+			],
+			"expo-router",
+			[
+				"expo-sqlite",
+				{
+					"enableFTS": true,
+					"useSQLCipher": true,
+					"android": {
+						"enableFTS": false,
+						"useSQLCipher": false
+					},
+					"ios": {
+						"customBuildFlags": [
+							"-DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_ENABLE_SNAPSHOT=1"
+						]
+					}
+				}
+			],
+			[
+				"expo-document-picker",
+				{
+					"iCloudContainerEnvironment": "Production"
+				}
+			],
+			"expo-asset"
+		]
+	}
+}
