@@ -58,8 +58,21 @@ export interface TransactionWithDetails extends Transaction {
 }
 
 export interface TransactionsSummary {
-	totalExpenses: number;
-	totalIncome: number;
+  totalExpenses: {
+    cop: number;
+    usd: number;
+  },
+  totalIncome: {
+    cop: number;
+    usd: number;
+  }
+}
+
+export interface TransactionSummaryQuery {
+  totalCopExpenses: number;
+  totalCopIncome: number;
+  totalUsdExpenses: number;
+  totalUsdIncome: number;
 }
 
 export interface TransformedTransaction {
@@ -80,8 +93,13 @@ export interface TransformedTransaction {
 export interface TransactionFormProps {
 	initialTransaction?: TransformedTransaction;
 	mode?: "new" | "update";
-	onSubmit: (transactionData: NewTransaction | UpdateTransaction) => Promise<void>;
+	onSubmitNew?: (transactionData: NewTransaction) => Promise<void>;
+  onSubmitUpdate?: (transactionData: UpdateTransaction) => Promise<void>;
 	onClose: () => void;
+}
+
+export interface FilterFormProps {
+  onClose: () => void;
 }
 
 export interface GroupedTransactionsByBank {
@@ -106,7 +124,7 @@ export interface Filters {
 	dateRange?: { start?: string; end?: string };
 	month?: string;
 	year?: string;
-	bankId?: number;
+	bank?: Bank;
 	categoryId?: number;
 	transactionType?: TransactionType;
 	order?: "ascending" | "descending";

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, TextInput } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
@@ -6,6 +6,8 @@ import CurrencyInput from "react-native-currency-input";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFormData } from "@/hooks/useFormData";
 import {
+	NewTransaction,
+	UpdateTransaction,
 	TransactionType,
 	TransactionFormProps,
 	CurrencyType,
@@ -13,10 +15,11 @@ import {
 } from "@/utils/types";
 import { formatDateToISO, formatDate } from "@/utils/helpers";
 
+import OptionSwitcher from "../ui/option-switcher";
 import { Muted, P } from "../ui/typography";
 import { Button } from "@/components/ui/button";
-import CategoriesList from "@/components/categories-list";
-import BanksDropdown from "@/components/banks-list";
+import CategorySelector from "@/components/custom/categories-list";
+import BanksSelector from "@/components/custom/banks-list";
 
 import { colors } from "@/utils/colors";
 import { useColorScheme } from "@/lib/useColorScheme";
@@ -24,7 +27,8 @@ import { useColorScheme } from "@/lib/useColorScheme";
 const TransactionForm: React.FC<TransactionFormProps> = ({
 	initialTransaction,
 	mode = "new",
-	onSubmit,
+	onSubmitNew,
+	onSubmitUpdate,
 	onClose,
 }) => {
 	const { colorScheme } = useColorScheme();
@@ -61,11 +65,40 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 	// Fetch dynamic data
 	const { banks, categories } = useFormData(transactionType);
 
+	// Update state when initialTransaction changes
+	useEffect(() => {
+		if (initialTransaction) {
+			setTransactionType(initialTransaction.transaction_type);
+			setTransactionDescription(initialTransaction.transaction_description);
+			setAmount(initialTransaction.amount);
+			setCurrency(initialTransaction.currency);
+			setSelectedCategory(initialTransaction.category.category_id);
+			setSelectedBank(initialTransaction.bank);
+			setTransactionDate(new Date(initialTransaction.transaction_date));
+		}
+	}, [initialTransaction]);
+
 	// Handle Date Selection
 	const handleDateChange = (_: any, selectedDate?: Date) => {
 		const currentDate = selectedDate || transactionDate;
 		setShowDatePicker(false);
 		setTransactionDate(currentDate);
+	};
+
+	const resetForm = () => {
+		setTransactionType(initialTransaction?.transaction_type || "Expense");
+		setTransactionDescription(
+			initialTransaction?.transaction_description || "",
+		);
+		setAmount(initialTransaction?.amount || null);
+		setCurrency(initialTransaction?.currency || "COP");
+		setSelectedCategory(initialTransaction?.category?.category_id || null);
+		setSelectedBank(initialTransaction?.bank || null);
+		setTransactionDate(
+			initialTransaction
+				? new Date(initialTransaction.transaction_date)
+				: new Date(),
+		);
 	};
 
 	// Handle Form Submission
@@ -79,7 +112,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 			return;
 		}
 
-		const transactionData = {
+		const transactionData: NewTransaction | UpdateTransaction = {
 			amount,
 			currency: currency,
 			transaction_date: formatDateToISO(transactionDate),
@@ -94,46 +127,27 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 			`${isUpdateMode ? "Update" : "New"} Transaction Form Input`,
 			transactionData,
 		);
-		await onSubmit(transactionData);
+
+		if (isUpdateMode && onSubmitUpdate) {
+			await onSubmitUpdate(transactionData as UpdateTransaction);
+		} else if (!isUpdateMode && onSubmitNew) {
+			await onSubmitNew(transactionData as NewTransaction);
+      resetForm();
+		}
 		onClose();
 	};
 
 	return (
 		<View className="py-2">
-			<View className="flex-row gap-2 p-1 mb-2 bg-background rounded-md border-border border">
-				<TouchableOpacity
-					className={`flex-1 p-3 rounded-md ${
-						transactionType === "Expense" ? "bg-primary" : "bg-background"
-					}`}
-					onPress={() => setTransactionType("Expense")}
-				>
-					<P
-						className={`${transactionType === "Expense" ? "text-background" : "text-foreground"} text-center`}
-						style={{
-							fontFamily:
-								transactionType === "Expense" ? "Poppins-SemiBold" : "Poppins",
-						}}
-					>
-						Expense
-					</P>
-				</TouchableOpacity>
-				<TouchableOpacity
-					className={`flex-1 p-3 rounded-md ${
-						transactionType === "Income" ? "bg-primary" : "bg-background"
-					}`}
-					onPress={() => setTransactionType("Income")}
-				>
-					<P
-						className={`${transactionType === "Income" ? "text-background" : "text-foreground"} text-center`}
-						style={{
-							fontFamily:
-								transactionType === "Income" ? "Poppins-SemiBold" : "Poppins",
-						}}
-					>
-						Income
-					</P>
-				</TouchableOpacity>
-			</View>
+			<OptionSwitcher
+				className="mb-2"
+				option1="Expense"
+				option2="Income"
+				option1Text="Expense"
+				option2Text="Income"
+				selectedOption={transactionType}
+				onSelectOption={setTransactionType}
+			/>
 			<View className="flex flex-col gap-1 justify-start mb-4">
 				<P>Choose Date</P>
 				<TouchableOpacity
@@ -217,15 +231,15 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 				<P>
 					Choose Category <Muted>({transactionType})</Muted>
 				</P>
-				<CategoriesList
+				<CategorySelector
 					categories={categories}
 					selectedCategory={selectedCategory}
 					setSelectedCategory={setSelectedCategory}
 				/>
 			</View>
-			<View className="flex flex-col gap-1 justify-start">
+			<View className="flex flex-col gap-1 justify-start mb-4">
 				<P>Select Bank</P>
-				<BanksDropdown
+				<BanksSelector
 					banks={banks}
 					selectedBank={selectedBank}
 					setSelectedBank={setSelectedBank}

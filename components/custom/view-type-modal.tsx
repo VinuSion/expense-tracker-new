@@ -3,8 +3,8 @@ import { View, TouchableOpacity, Modal } from "react-native";
 import { BlurView } from "expo-blur";
 import { MaterialIcons } from "@expo/vector-icons";
 
-import { H4, P } from "./ui/typography";
-import { Button } from "./ui/button";
+import { H4, P } from "../ui/typography";
+import { Button } from "../ui/button";
 
 import { useDBStore } from "@/store/dbStore";
 import { viewOptions } from "@/utils/constants";

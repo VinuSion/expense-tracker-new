@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { View, Alert } from "react-native";
+import { View } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as SQLite from "expo-sqlite";

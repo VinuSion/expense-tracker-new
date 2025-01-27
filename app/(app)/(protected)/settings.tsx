@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-	View,
-	ScrollView,
-	TouchableOpacity,
-	TextInput,
-	FlatList,
-} from "react-native";
+import { View, ScrollView, TouchableOpacity, TextInput } from "react-native";
 import { useRouter } from "expo-router";
 import * as FileSystem from "expo-file-system";
 import * as SQLite from "expo-sqlite";
@@ -29,6 +23,7 @@ import { useColorScheme } from "@/lib/useColorScheme";
 
 export default function Settings() {
 	const { colorScheme } = useColorScheme();
+
 	const router = useRouter();
 	const { dbPath, deleteDB } = useDBStore();
 
@@ -164,7 +159,7 @@ export default function Settings() {
 				}}
 				keyboardShouldPersistTaps="always"
 			>
-				<H2>Your Data</H2>
+				<H2 style={{ fontFamily: "Poppins-Bold" }}>Your Data</H2>
 				<View className="w-full mb-8">
 					<View className="bg-background border border-border rounded-lg">
 						<TouchableOpacity
@@ -218,8 +213,8 @@ export default function Settings() {
 						</TouchableOpacity>
 					</View>
 				</View>
-        
-				<H2>Add Categories</H2>
+
+				<H2 style={{ fontFamily: "Poppins-Bold" }}>Add Categories</H2>
 				<View className="w-full flex flex-col">
 					<Muted className="mb-2">
 						You can only create "Expense" categories right now because they're

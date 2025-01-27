@@ -3,13 +3,13 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useFetchTransactions } from "./useFetchTransactions";
 import Toast from "react-native-toast-message";
 
-import { useFilterStore } from '@/store/filterStore'
+import { useFilterStore } from "@/store/filterStore";
 import { UpdateTransaction } from "@/utils/types";
 
 export const useUpdateTransaction = () => {
 	const db = useSQLiteContext();
 	const { fetchCurrentTransactions } = useFetchTransactions();
-  const { resetFilters } = useFilterStore()
+	const { resetFilters } = useFilterStore();
 
 	const updateTransaction = useCallback(
 		async (transaction: UpdateTransaction) => {
@@ -17,7 +17,7 @@ export const useUpdateTransaction = () => {
 				const {
 					id,
 					amount,
-          currency,
+					currency,
 					transaction_date,
 					transaction_description,
 					category_id,
@@ -32,7 +32,7 @@ export const useUpdateTransaction = () => {
         `;
 				const updateResult = await db.runAsync(updateQuery, [
 					amount,
-          currency,
+					currency,
 					transaction_date,
 					transaction_description,
 					category_id,
@@ -42,21 +42,21 @@ export const useUpdateTransaction = () => {
 				]);
 
 				console.log("Update Transaction Result", updateResult);
-        resetFilters()
+				resetFilters();
 				await fetchCurrentTransactions();
 
-        Toast.show({
-                  type: "success",
-                  text1: "Operation Successful",
-                  text2: "Transaction updated successfully!",
-                });
+				Toast.show({
+					type: "success",
+					text1: "Operation Successful",
+					text2: "Transaction updated successfully!",
+				});
 			} catch (error) {
 				console.error("Failed to update transaction:", error);
-        Toast.show({
-          type: "error",
-          text1: "Operation Failed",
-          text2: "Failed to update transaction. Please try again.",
-        });
+				Toast.show({
+					type: "error",
+					text1: "Operation Failed",
+					text2: "Failed to update transaction. Please try again.",
+				});
 			}
 		},
 		[db],

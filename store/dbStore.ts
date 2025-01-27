@@ -6,22 +6,22 @@ import * as SQLite from "expo-sqlite";
 import {
 	TransformedTransaction,
 	TransactionsSummary,
-  TransactionsViewType,
+	TransactionsViewType,
 } from "@/utils/types";
-import { DEFAULT_DB_PATH } from "@/utils/constants"; 
+import { DEFAULT_DB_PATH } from "@/utils/constants";
 
 type DBStore = {
 	dbExists: boolean;
 	dbPath: string | null;
 	currentTransactions: TransformedTransaction[];
 	transactionsSummary: TransactionsSummary;
-  viewType: TransactionsViewType;
+	viewType: TransactionsViewType;
 	updateDBState: () => Promise<void>;
 	setDBExists: (exists: boolean) => void;
 	setCurrentTransactions: (transactions: TransformedTransaction[]) => void;
 	setTransactionsSummary: (summary: TransactionsSummary) => void;
-  setViewType: (viewType: TransactionsViewType) => void;
-  resetState: () => void;
+	setViewType: (viewType: TransactionsViewType) => void;
+	resetState: () => void;
 	deleteDB: () => Promise<void>;
 };
 
@@ -31,8 +31,17 @@ export const useDBStore = create<DBStore>()(
 			dbExists: false,
 			dbPath: null,
 			currentTransactions: [],
-			transactionsSummary: { totalExpenses: 0, totalIncome: 0 },
-      viewType: "default",
+			transactionsSummary: {
+				totalExpenses: {
+					cop: 0,
+					usd: 0,
+				},
+				totalIncome: {
+					cop: 0,
+					usd: 0,
+				},
+			},
+			viewType: "default",
 
 			updateDBState: async () => {
 				try {
@@ -63,19 +72,28 @@ export const useDBStore = create<DBStore>()(
 				set({ transactionsSummary: summary });
 			},
 
-      setViewType: (viewType: TransactionsViewType) => {
-        set({ viewType });
-      },
+			setViewType: (viewType: TransactionsViewType) => {
+				set({ viewType });
+			},
 
-      resetState: () => {
-        set({
-          dbExists: false,
-          dbPath: null,
-          currentTransactions: [],
-          transactionsSummary: { totalExpenses: 0, totalIncome: 0 },
-          viewType: "default",
-        })
-      },
+			resetState: () => {
+				set({
+					dbExists: false,
+					dbPath: null,
+					currentTransactions: [],
+					transactionsSummary: {
+						totalExpenses: {
+							cop: 0,
+							usd: 0,
+						},
+						totalIncome: {
+							cop: 0,
+							usd: 0,
+						},
+					},
+					viewType: "default",
+				});
+			},
 
 			deleteDB: async () => {
 				const { dbPath } = get();
@@ -90,7 +108,7 @@ export const useDBStore = create<DBStore>()(
 					await db.closeAsync();
 					await FileSystem.deleteAsync(dbPath);
 
-					get().resetState()
+					get().resetState();
 				} catch (error) {
 					console.error("Error deleting database:", error);
 				}
@@ -110,6 +128,6 @@ export const useDBStore = create<DBStore>()(
 					await AsyncStorage.removeItem(key);
 				},
 			},
-		}
-	)
+		},
+	),
 );

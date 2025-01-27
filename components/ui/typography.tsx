@@ -103,6 +103,7 @@ const P = React.forwardRef<TextRef, SlottableTextProps>(
 		);
 	},
 );
+
 P.displayName = "P";
 
 const BlockQuote = React.forwardRef<TextRef, SlottableTextProps>(

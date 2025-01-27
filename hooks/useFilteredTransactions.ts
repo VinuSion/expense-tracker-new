@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useSQLiteContext } from 'expo-sqlite'
 import { useDBStore } from '@/store/dbStore'
-import { TransactionWithDetails, TransactionsSummary, Filters } from '@/utils/types'
+import { TransactionWithDetails, TransactionSummaryQuery, Filters } from '@/utils/types'
 
 export function useFilteredTransactions() {
   const db = useSQLiteContext()
@@ -34,9 +34,9 @@ export function useFilteredTransactions() {
     }
 
     // Handle other filters
-    if (filters.bankId !== undefined) {
+    if (filters.bank !== undefined) {
       conditions.push('bank_id = ?')
-      params.push(filters.bankId)
+      params.push(filters.bank?.id)
     }
     if (filters.categoryId !== undefined) {
       conditions.push('category_id = ?')
@@ -60,10 +60,12 @@ export function useFilteredTransactions() {
       params
     )
 
-    const transactionsByMonthResult = await db.getAllAsync<TransactionsSummary>(
+    const transactionsByMonthResult = await db.getAllAsync<TransactionSummaryQuery>(
       `SELECT
-        COALESCE(SUM(CASE WHEN transaction_type = 'Expense' THEN amount ELSE 0 END), 0) AS totalExpenses,
-        COALESCE(SUM(CASE WHEN transaction_type = 'Income' THEN amount ELSE 0 END), 0) AS totalIncome
+        COALESCE(SUM(CASE WHEN transaction_type = 'Expense' AND currency = 'COP' THEN amount ELSE 0 END), 0) AS totalCopExpenses,
+        COALESCE(SUM(CASE WHEN transaction_type = 'Income' AND currency = 'COP' THEN amount ELSE 0 END), 0) AS totalCopIncome,
+        COALESCE(SUM(CASE WHEN transaction_type = 'Expense' AND currency = 'USD' THEN amount ELSE 0 END), 0) AS totalUsdExpenses,
+        COALESCE(SUM(CASE WHEN transaction_type = 'Income' AND currency = 'USD' THEN amount ELSE 0 END), 0) AS totalUsdIncome
         FROM transactions
         ${whereClause}`,
       params
@@ -75,13 +77,14 @@ export function useFilteredTransactions() {
       transaction_description: transaction.transaction_description,
       transaction_type: transaction.transaction_type,
       amount: transaction.amount,
+      currency: transaction.currency,
       category: {
         category_id: transaction.category_id,
         category_name: transaction.category_name,
         category_type: transaction.category_type,
       },
       bank: {
-        bank_id: transaction.bank_id,
+        id: transaction.bank_id,
         bank_name: transaction.bank_name,
         logo_url: transaction.logo_url,
       },
@@ -90,7 +93,16 @@ export function useFilteredTransactions() {
     console.log('Filtered Transformed Transactions', transformedTransactions)
 
     setCurrentTransactions(transformedTransactions)
-    setTransactionsSummary(transactionsByMonthResult[0])
+    setTransactionsSummary({
+			totalExpenses: {
+				cop: transactionsByMonthResult[0].totalCopExpenses,
+				usd: transactionsByMonthResult[0].totalUsdExpenses,
+			},
+			totalIncome: {
+				cop: transactionsByMonthResult[0].totalCopIncome,
+				usd: transactionsByMonthResult[0].totalUsdIncome,
+			},
+		});
   }, [db, setCurrentTransactions, setTransactionsSummary])
 
   return { fetchFilteredTransactions }

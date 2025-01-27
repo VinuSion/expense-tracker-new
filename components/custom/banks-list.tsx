@@ -1,25 +1,25 @@
 import React, { useState } from "react";
 import { View, TouchableOpacity, Modal, FlatList, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { P, H4 } from "./ui/typography";
+import { P, H4 } from "../ui/typography";
 import { BlurView } from "expo-blur";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 import { Bank } from "@/utils/types";
 import { colors } from "@/utils/colors";
 import { useColorScheme } from "@/lib/useColorScheme";
 
-interface BanksListProps {
+interface BanksSelectorProps {
 	banks: Bank[];
 	selectedBank: Bank | null;
 	setSelectedBank: (bank: Bank | null) => void;
 }
 
-export default function BanksList({
+export default function BanksSelector({
 	banks,
 	selectedBank,
 	setSelectedBank,
-}: BanksListProps) {
+}: BanksSelectorProps) {
 	const { colorScheme } = useColorScheme();
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -31,7 +31,7 @@ export default function BanksList({
 	return (
 		<View>
 			<TouchableOpacity
-				className="flex-row items-center p-3 bg-primary rounded-md"
+				className="flex-row items-center p-3 bg-primary rounded-md h-14"
 				onPress={() => setModalVisible(true)}
 			>
 				{selectedBank ? (

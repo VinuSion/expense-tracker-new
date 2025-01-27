@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, FlatList } from "react-native";
-import { H4, P } from "./ui/typography";
-import { Button } from "./ui/button";
+import { H4, P } from "../ui/typography";
+import { Button } from "../ui/button";
 import { BlurView } from "expo-blur";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -33,7 +33,7 @@ export default function CategorySelector({
 	return (
 		<View>
 			<TouchableOpacity
-				className="flex-row items-center justify-center p-3 bg-primary rounded-md"
+				className="flex-row items-center justify-center p-3 bg-primary rounded-md h-14"
 				onPress={() => setModalVisible(true)}
 			>
 				<MaterialIcons
