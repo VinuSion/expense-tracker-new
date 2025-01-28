@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import { View, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import * as FileSystem from "expo-file-system";
 import * as SQLite from "expo-sqlite";
@@ -7,15 +7,14 @@ import Toast from "react-native-toast-message";
 
 import { SafeAreaView } from "@/components/safe-area-view";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Button } from "@/components/ui/button";
-import { H2, H4, Muted, P } from "@/components/ui/typography";
+
+import AddCategoriesForm from "@/components/forms/add-categories-form";
+import { H2, H4, Muted } from "@/components/ui/typography";
 import ConfirmModal from "@/components/ui/confirm-modal";
 
 import { useDBStore } from "@/store/dbStore";
-import { useFetchCategories } from "@/hooks/useFetchCategories";
-import { useInsertCategory } from "@/hooks/useInsertCategory";
 
-import { generateTimestampedFilename, getCategoryIcon } from "@/utils/helpers";
+import { generateTimestampedFilename } from "@/utils/helpers";
 import { DEFAULT_DB_PATH } from "@/utils/constants";
 
 import { colors } from "@/utils/colors";
@@ -25,13 +24,9 @@ export default function Settings() {
 	const { colorScheme } = useColorScheme();
 
 	const router = useRouter();
-	const { dbPath, deleteDB } = useDBStore();
-
-	const { categories, refreshCategories } = useFetchCategories();
-	const { insertCategory } = useInsertCategory();
+	const { totalTransactions, dbPath, deleteDB } = useDBStore();
 
 	const [dialogVisible, setDialogVisible] = useState<boolean>(false);
-	const [newCategory, setNewCategory] = useState<string>("");
 
 	const handleExportDB = async () => {
 		try {
@@ -108,48 +103,6 @@ export default function Settings() {
 		router.replace("../welcome");
 	};
 
-	const handleAddCategory = async () => {
-		if (!newCategory) {
-			Toast.show({
-				type: "error",
-				text1: "You stupid idiot",
-				text2:
-					"Adding a category without typing anything? Lost your whole mind.",
-			});
-			return;
-		}
-
-		if (newCategory.length > 25) {
-			Toast.show({
-				type: "error",
-				text1: "Im not reading all dat",
-				text2: "Category name must not exceed 25 characters.",
-			});
-			return;
-		}
-
-		const isValid = /^[a-zA-Z\s]+$/.test(newCategory);
-		if (!isValid) {
-			Toast.show({
-				type: "error",
-				text1: "Yeah Shush man",
-				text2: "Category name must only contain letters and spaces.",
-			});
-			return;
-		}
-
-		console.log("New Category Form Input:", newCategory);
-		await insertCategory(newCategory.trim());
-		refreshCategories();
-		Toast.show({
-			type: "success",
-			text1: "Operation Successful",
-			text2: "Added new category successfully!",
-		});
-
-		setNewCategory("");
-	};
-
 	return (
 		<SafeAreaView className="flex-1 bg-background">
 			<ScrollView
@@ -159,7 +112,16 @@ export default function Settings() {
 				}}
 				keyboardShouldPersistTaps="always"
 			>
-				<H2 style={{ fontFamily: "Poppins-Bold" }}>Your Data</H2>
+				<View className="flex flex-row gap-1 items-center">
+					<H2 style={{ fontFamily: "Poppins-Bold" }}>Your Data</H2>
+					<Muted className="mb-2">
+						{totalTransactions > 0
+							? totalTransactions > 1
+								? `(${totalTransactions} transactions)`
+								: `(${totalTransactions} transaction)`
+							: "(No transactions yet)"}
+					</Muted>
+				</View>
 				<View className="w-full mb-8">
 					<View className="bg-background border border-border rounded-lg">
 						<TouchableOpacity
@@ -215,55 +177,8 @@ export default function Settings() {
 				</View>
 
 				<H2 style={{ fontFamily: "Poppins-Bold" }}>Add Categories</H2>
-				<View className="w-full flex flex-col">
-					<Muted className="mb-2">
-						You can only create "Expense" categories right now because they're
-						more common than "Income" categories. However, you can't delete or
-						edit categories, so choose their names carefully!
-					</Muted>
-					<View className="flex-row flex gap-2 mb-4">
-						<TextInput
-							className="flex-1 border border-border rounded-md p-3 text-foreground"
-							placeholder="Add New Category..."
-							placeholderTextColor="#ccc"
-							value={newCategory}
-							onChangeText={setNewCategory}
-							style={{ fontFamily: "Poppins" }}
-						/>
-						<Button size="icon" variant="default" onPress={handleAddCategory}>
-							<MaterialIcons
-								name="add-circle"
-								size={24}
-								color={
-									colorScheme === "dark"
-										? colors.dark.background
-										: colors.light.background
-								}
-							/>
-						</Button>
-					</View>
-					<View className="bg-background border border-border rounded-md flex-grow-0">
-						<View className="flex flex-row flex-wrap gap-2 p-2">
-							{categories.map((item) => (
-								<View
-									key={item.id}
-									className="flex flex-row items-center gap-1 py-1 px-3 rounded-full bg-secondary"
-								>
-									<MaterialIcons
-										name={getCategoryIcon(item.category_name)}
-										size={10}
-										color={
-											colorScheme === "dark"
-												? colors.dark.mutedForeground
-												: colors.light.mutedForeground
-										}
-									/>
-									<Muted>{item.category_name}</Muted>
-								</View>
-							))}
-						</View>
-					</View>
-				</View>
+				<AddCategoriesForm />
+
 				<ConfirmModal
 					visible={dialogVisible}
 					title="Delete My Data"

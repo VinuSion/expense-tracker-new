@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { useFetchTransactions } from "./useFetchTransactions";
+import { useFetchTotalTransactions } from "./useFetchTotalTransactions";
 import Toast from "react-native-toast-message";
 
 import { useFilterStore } from "@/store/filterStore";
@@ -9,6 +10,7 @@ import { NewTransaction } from "@/utils/types";
 export const useInsertTransaction = () => {
 	const db = useSQLiteContext();
 	const { fetchCurrentTransactions } = useFetchTransactions();
+  const { fetchTotalTransactions } = useFetchTotalTransactions();
 	const { resetFilters } = useFilterStore();
 
 	const insertTransaction = useCallback(
@@ -41,6 +43,7 @@ export const useInsertTransaction = () => {
 				console.log("Insert New Transaction Result", insertResult);
 				resetFilters();
 				await fetchCurrentTransactions();
+        await fetchTotalTransactions();
 
 				Toast.show({
 					type: "success",

@@ -1,11 +1,11 @@
 {
 	"expo": {
-		"name": "ExpenseTrackerNew",
+		"name": "Expense Tracker",
 		"slug": "expense-tracker-new",
-		"scheme": "expense-tracker-new",
+		"scheme": "com.expense-tracker-new",
 		"version": "1.0.0",
 		"orientation": "portrait",
-		"icon": "./assets/icon.png",
+		"icon": "./assets/images/icon.png",
 		"userInterfaceStyle": "automatic",
 		"assetBundlePatterns": ["**/*"],
 		"newArchEnabled": true,
@@ -27,19 +27,24 @@
 		},
 		"android": {
 			"adaptiveIcon": {
-				"foregroundImage": "./assets/adaptive-icon.png"
+				"foregroundImage": "./assets/images/adaptive-icon.png"
 			},
 			"splash": {
-				"image": "./assets/splash.png",
+				"image": "./assets/images/splash.png",
 				"resizeMode": "cover",
 				"backgroundColor": "#ffffff",
 				"dark": {
 					"backgroundColor": "#000000",
 					"resizeMode": "cover",
-					"image": "./assets/splash-dark.png"
+					"image": "./assets/images/splash-dark.png"
 				}
 			}
 		},
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
 		"experiments": {
 			"typedRoutes": true
 		},
@@ -51,9 +56,9 @@
 						"assets/fonts/Poppins-Regular.ttf",
 						"assets/fonts/Poppins-Light.ttf",
 						"assets/fonts/Poppins-Bold.ttf",
-            "assets/fonts/Poppins-SemiBold.ttf",
+						"assets/fonts/Poppins-SemiBold.ttf",
 						"assets/fonts/Poppins-ExtraBold.ttf",
-            "assets/fonts/Poppins-Italic.ttf"
+						"assets/fonts/Poppins-Italic.ttf"
 					]
 				}
 			],

@@ -127,6 +127,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 			`${isUpdateMode ? "Update" : "New"} Transaction Form Input`,
 			transactionData,
 		);
+    
+    onClose();
 
 		if (isUpdateMode && onSubmitUpdate) {
 			await onSubmitUpdate(transactionData as UpdateTransaction);
@@ -134,7 +136,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 			await onSubmitNew(transactionData as NewTransaction);
       resetForm();
 		}
-		onClose();
 	};
 
 	return (

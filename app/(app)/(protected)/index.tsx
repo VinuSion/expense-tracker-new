@@ -22,6 +22,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useDBStore } from "@/store/dbStore";
 import { useFilterStore } from "@/store/filterStore";
 import { useFetchTransactions } from "@/hooks/useFetchTransactions";
+import { useFetchTotalTransactions } from "@/hooks/useFetchTotalTransactions";
 import { useInsertTransaction } from "@/hooks/useInsertTransaction";
 import { useUpdateTransaction } from "@/hooks/useUpdateTransaction";
 
@@ -42,6 +43,7 @@ export default function Home() {
 	const { colorScheme } = useColorScheme();
 
 	const { fetchCurrentTransactions } = useFetchTransactions();
+  const { fetchTotalTransactions } = useFetchTotalTransactions();
 	const { currentTransactions, dbExists, viewType } = useDBStore();
 	const { filters } = useFilterStore();
 
@@ -91,6 +93,8 @@ export default function Home() {
 		if (dbExists) {
 			console.warn("Calling Fetch Transactions...");
 			fetchCurrentTransactions();
+      console.warn("Calling Fetch Total Transactions Number...");
+      fetchTotalTransactions()
 		}
 	}, [dbExists]);
 

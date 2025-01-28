@@ -16,11 +16,13 @@ type DBStore = {
 	currentTransactions: TransformedTransaction[];
 	transactionsSummary: TransactionsSummary;
 	viewType: TransactionsViewType;
+  totalTransactions: number;
 	updateDBState: () => Promise<void>;
 	setDBExists: (exists: boolean) => void;
 	setCurrentTransactions: (transactions: TransformedTransaction[]) => void;
 	setTransactionsSummary: (summary: TransactionsSummary) => void;
 	setViewType: (viewType: TransactionsViewType) => void;
+  setTotalTransactions: (total: number) => void;
 	resetState: () => void;
 	deleteDB: () => Promise<void>;
 };
@@ -42,6 +44,7 @@ export const useDBStore = create<DBStore>()(
 				},
 			},
 			viewType: "default",
+      totalTransactions: 0,
 
 			updateDBState: async () => {
 				try {
@@ -76,6 +79,8 @@ export const useDBStore = create<DBStore>()(
 				set({ viewType });
 			},
 
+      setTotalTransactions: (total) => set({ totalTransactions: total }),
+
 			resetState: () => {
 				set({
 					dbExists: false,
@@ -92,6 +97,7 @@ export const useDBStore = create<DBStore>()(
 						},
 					},
 					viewType: "default",
+          totalTransactions: 0,
 				});
 			},
 

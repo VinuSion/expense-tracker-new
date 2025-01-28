@@ -140,6 +140,19 @@ const FiltersForm: React.FC<FilterFormProps> = ({ onClose }) => {
 		}
 	};
 
+  const handleReset = async () => {
+    Toast.show({
+      type: "info",
+      text1: "Filters Reset",
+      text2:
+        "All filter parameters have been removed.",
+    });
+    onClose();
+		resetFilters();
+		setTransactionType("Expense");
+		await fetchFilteredTransactions({});
+	};
+
 	const handleApply = async () => {
 		let title = "";
 		let message = "";
@@ -197,16 +210,17 @@ const FiltersForm: React.FC<FilterFormProps> = ({ onClose }) => {
 			dateRangePreset: selectedPreset,
 		};
 
+    Toast.show({
+      type: "info",
+      text1: "Filters Applied",
+      text2:
+        "You're now viewing the filtered view.",
+    });
+		onClose();
+
 		console.log("Filters in Form", newFilters);
 		setFilters(newFilters);
 		await fetchFilteredTransactions(newFilters);
-		onClose();
-	};
-
-	const handleReset = async () => {
-		resetFilters();
-		setTransactionType("Expense");
-		await fetchFilteredTransactions({});
 	};
 
 	return (

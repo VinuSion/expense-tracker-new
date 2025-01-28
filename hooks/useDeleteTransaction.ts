@@ -3,11 +3,13 @@ import { useSQLiteContext } from 'expo-sqlite'
 import Toast from "react-native-toast-message";
 
 import { useFetchTransactions } from './useFetchTransactions'
+import { useFetchTotalTransactions } from "./useFetchTotalTransactions";
 import { useFilterStore } from '@/store/filterStore'
 
 export const useDeleteTransaction = () => {
   const db = useSQLiteContext()
   const { fetchCurrentTransactions } = useFetchTransactions()
+  const { fetchTotalTransactions } = useFetchTotalTransactions();
   const { resetFilters } = useFilterStore()
 
   const deleteTransaction = useCallback(
@@ -22,6 +24,7 @@ export const useDeleteTransaction = () => {
         console.log('Delete Transaction Result', deleteResult)
         resetFilters()
         await fetchCurrentTransactions()
+        await fetchTotalTransactions()
 
         Toast.show({
           type: "success",
