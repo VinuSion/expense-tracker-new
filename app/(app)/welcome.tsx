@@ -124,7 +124,7 @@ export default function WelcomeScreen() {
 		<SafeAreaView className="flex flex-1 bg-background p-4">
 			<View className="flex flex-1 items-center justify-center gap-y-4 web:m-4">
 				<Image
-					source={require("@/assets/icon.png")}
+					source={require("@/assets/images/icon.png")}
 					className="w-16 h-16 rounded-xl"
 				/>
 				<H1 className="text-center">Welcome to your Expense Tracker</H1>
