@@ -51,6 +51,12 @@ export default function TransactionCard({
 
 	const { deleteTransaction } = useDeleteTransaction();
 
+	const wordCount = 55;
+	const lettersInDescription = transaction_description
+		? transaction_description.trim().length
+		: 0;
+
+	const [isExpanded, setIsExpanded] = useState(false);
 	const [showWidgets, setShowWidgets] = useState(false);
 	const [dialogVisible, setDialogVisible] = useState(false);
 
@@ -94,9 +100,9 @@ export default function TransactionCard({
 				<View style={{ position: "relative" }}>
 					<Animated.View
 						style={{ transform: [{ scale }] }}
-						className="rounded-md bg-muted p-4 mb-2 border border-border"
+						className="flex flex-col justify-between gap-2 rounded-md bg-muted p-4 mb-2 border border-border"
 					>
-						<View className="flex flex-row flex-wrap gap-2 mb-4 items-center">
+						<View className="flex flex-row flex-wrap gap-2 justify-between">
 							<View className="flex-row gap-1 items-center">
 								<H4
 									className={`${transaction_type === "Expense" ? "text-destructive" : "text-green-500"}`}
@@ -107,42 +113,89 @@ export default function TransactionCard({
 								<Muted>{currency}</Muted>
 							</View>
 
-							{showBank && (
-								<View
-									className="flex flex-row items-center gap-1 py-1 rounded-full bg-background"
-									style={{ paddingHorizontal: 6 }}
-								>
-									<Image
-										source={{ uri: bank.logo_url }}
-										className="rounded-full overflow-hidden"
-										style={{ width: 20, height: 20 }}
-									/>
-									<Muted>{bank.bank_name}</Muted>
-								</View>
-							)}
+							<View className="flex flex-row flex-wrap gap-2 justify-end">
+								{showBank && (
+									<View
+										className="flex flex-row items-center gap-1 py-1 rounded-full bg-background"
+										style={{ paddingHorizontal: 5 }}
+									>
+										<Image
+											source={{ uri: bank.logo_url }}
+											className="rounded-full overflow-hidden"
+											style={{ width: 18, height: 18 }}
+										/>
+										<Muted>{bank.bank_name}</Muted>
+									</View>
+								)}
 
-							{showCategory && (
-								<View className="flex flex-row items-center gap-1 py-1 px-3 rounded-full bg-background" style={{height: 27}}>
-									<MaterialIcons
-										name={getCategoryIcon(category.category_name)}
-										size={14}
-										color={
-											colorScheme === "dark"
-												? colors.dark.mutedForeground
-												: colors.light.mutedForeground
-										}
-									/>
-									<Muted>{category.category_name}</Muted>
-								</View>
-							)}
+								{showCategory && (
+									<View
+										className="flex flex-row items-center gap-1 py-1 rounded-full bg-background"
+										style={{ paddingHorizontal: 5 }}
+									>
+										<MaterialIcons
+											name={getCategoryIcon(category.category_name)}
+											size={14}
+											color={
+												colorScheme === "dark"
+													? colors.dark.mutedForeground
+													: colors.light.mutedForeground
+											}
+										/>
+										<Muted>{category.category_name}</Muted>
+									</View>
+								)}
+							</View>
 						</View>
 
-						<View className="flex flex-row flex-wrap gap-2 items-center">
+						<View
+							className={`flex ${lettersInDescription < wordCount ? "flex-wrap flex-row items-center" : "flex-col items-stretch"} gap-2 justify-between`}
+						>
 							{transaction_description && (
-								<Muted>{transaction_description}</Muted>
+								<View
+									className={`${lettersInDescription <= wordCount ? "flex" : "flex-1"} bg-background rounded py-1 px-3`}
+								>
+									{lettersInDescription < wordCount ? (
+										<Muted>{transaction_description}</Muted>
+									) : (
+										<TouchableOpacity
+											activeOpacity={1}
+											className={`flex flex-row gap-1 justify-between ${isExpanded ? "items-start" : "items-center"}`}
+											onPress={() => setIsExpanded(!isExpanded)}
+										>
+											{isExpanded ? (
+												<Muted numberOfLines={8}>
+													{transaction_description}
+												</Muted>
+											) : (
+												<Muted numberOfLines={1}>
+													{transaction_description}
+												</Muted>
+											)}
+											<MaterialIcons
+												style={{
+													transform: isExpanded
+														? "rotate(180deg)"
+														: "rotate(0deg)",
+												}}
+												className={`${isExpanded ? "mt-0.5" : "mt-0"}`}
+												name="expand-circle-down"
+												size={14}
+												color={
+													colorScheme === "dark"
+														? colors.dark.mutedForeground
+														: colors.light.mutedForeground
+												}
+											/>
+										</TouchableOpacity>
+									)}
+								</View>
 							)}
-							<View className="flex flex-row items-center gap-1 py-1 px-3 rounded-full bg-background">
-								<P>{formatDate(transaction_date)}</P>
+
+							<View className="flex">
+								<Muted className="text-foreground">
+									{formatDate(transaction_date)}
+								</Muted>
 							</View>
 						</View>
 					</Animated.View>

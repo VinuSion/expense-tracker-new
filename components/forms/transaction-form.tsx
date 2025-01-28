@@ -173,7 +173,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 					placeholderTextColor="#ccc"
 					value={transactionDescription}
 					onChangeText={setTransactionDescription}
-					style={{ fontFamily: "Poppins" }}
+					style={{ fontFamily: "Poppins", height: 47 }}
 				/>
 			</View>
 			<View className="flex flex-col gap-1 justify-start mb-4">
