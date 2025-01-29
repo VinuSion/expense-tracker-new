@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Expense Tracker",
-    "slug": "expense-tracker-new",
-    "scheme": "com.expense-tracker-new",
+    "slug": "expense-tracker-next",
+    "scheme": "com.expense-tracker-next",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -41,7 +41,7 @@
           "image": "./assets/images/splash-dark.png"
         }
       },
-      "package": "com.expensetracker.new"
+      "package": "com.expensetracker.next"
     },
     "web": {
       "bundler": "metro",
@@ -95,7 +95,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "34184703-24bf-4730-9d0b-88f373978bb6"
+        "projectId": "0039933e-fb4d-4b63-8805-0d44369edf68"
       }
     }
   }
