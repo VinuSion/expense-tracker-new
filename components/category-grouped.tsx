@@ -64,12 +64,12 @@ const CategoryGrouped: React.FC<CategoryGroupedProps> = ({
 					) : (
 						<>
 							<P
-								className="text-destructive"
+								className="text-green-500"
 								style={{ fontFamily: "Poppins-SemiBold" }}
 							>
 								Income
 							</P>
-							<P className="text-destructive">
+							<P className="text-green-500">
 								-${formatAmount(item.incomeAmount ?? 0)}
 							</P>
 						</>

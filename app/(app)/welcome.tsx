@@ -7,7 +7,12 @@ import Toast from "react-native-toast-message";
 
 import { useDBStore } from "@/store/dbStore";
 import { restartApp } from "@/utils/helpers";
-import { schemaStatements, DEFAULT_DB_PATH } from "@/utils/constants";
+import {
+	databaseDefinition,
+	insertStatements,
+	DEFAULT_DB_PATH,
+	LATEST_SCHEMA_VERSION,
+} from "@/utils/constants";
 
 import { Image } from "@/components/image";
 import { SafeAreaView } from "@/components/safe-area-view";
@@ -34,22 +39,22 @@ export default function WelcomeScreen() {
 
 			// Verify file extension
 			if (!name.endsWith(".db")) {
-        Toast.show({
-          type: "error",
-          text1: "Invalid File",
-          text2: "Please select a valid SQLite database file and try again.",
-        });
+				Toast.show({
+					type: "error",
+					text1: "Invalid File",
+					text2: "Please select a valid SQLite database file and try again.",
+				});
 				return;
 			}
 
 			// Read file content
 			const fileInfo = await FileSystem.getInfoAsync(uri);
 			if (!fileInfo.exists) {
-        Toast.show({
-          type: "error",
-          text1: "File Not Found",
-          text2: "The selected file does not exist. Please try again.",
-        });
+				Toast.show({
+					type: "error",
+					text1: "File Not Found",
+					text2: "The selected file does not exist. Please try again.",
+				});
 				return;
 			}
 
@@ -59,28 +64,101 @@ export default function WelcomeScreen() {
 				to: DEFAULT_DB_PATH,
 			});
 
-			// Verify database by opening it
+			// Verify database by opening it and handle migrations
 			const db = await SQLite.openDatabaseAsync(DEFAULT_DB_PATH);
-			await db.closeAsync();
+
+			try {
+				let currentVersion = null;
+
+				// Step 1: Check if schema_version table exists
+				const schemaVersionResult = await db.getAllAsync(
+					"SELECT name FROM sqlite_master WHERE type='table' AND name='schema_version'",
+				);
+
+				console.log(
+					"Select Schema Version Table Result: ",
+					schemaVersionResult,
+				);
+
+        // Step 2: Start Migration logic process
+				if (schemaVersionResult.length === 0) {
+					// The schema_version table does not exist, create it with the latest schema definition
+					for (const schemaStatement of databaseDefinition) {
+						await db.execAsync(schemaStatement);
+					}
+					const insertSchemaVersionResult = await db.runAsync(
+						`INSERT INTO schema_version (version_number) VALUES (?)`,
+						[LATEST_SCHEMA_VERSION],
+					);
+					console.log(
+						"Migrate LEGACY DB to new Schema Result: ",
+						insertSchemaVersionResult,
+					);
+				} else {
+					// The schema_version table exists, get the current version
+					const getVersionResult = await db.getAllAsync<{
+						version_number: number;
+					}>("SELECT version_number FROM schema_version");
+					currentVersion = getVersionResult[0]?.version_number;
+
+          console.warn("USER'S SCHEMA VERSION: ", currentVersion)
+          console.warn("CURRENT SCHEMA VERSION: ", LATEST_SCHEMA_VERSION)
+
+					if (Number(currentVersion) !== Number(LATEST_SCHEMA_VERSION)) {
+						console.log("Applying schema migrations...");
+
+						// Ensure foreign keys are enabled
+						await db.execAsync("PRAGMA foreign_keys = ON");
+
+            // Apply migrations to update the schema to the latest version
+						for (const schemaStatement of databaseDefinition) {
+							await db.execAsync(schemaStatement);
+						}
+
+						// Update schema version to latest
+						const updateSchemaVersionResult = await db.runAsync(
+							`UPDATE schema_version SET version_number = ? WHERE version_number = ?`,
+							[LATEST_SCHEMA_VERSION, currentVersion],
+						);
+						console.log(
+							"Update Migration Schema Version Result: ",
+							updateSchemaVersionResult,
+						);
+					} else {
+            console.log("Schema is already up-to-date.");
+          }
+				}
+
+				// Close the database after migrations
+				await db.closeAsync();
+			} catch (error) {
+				console.error("Error during database migration: ", error);
+				Toast.show({
+					type: "error",
+					text1: "Database Migration Failed",
+					text2:
+						"Failed to apply database schema changes. Please try again later.",
+				});
+			}
 
 			// Update state
 			setDBExists(true);
 
 			console.log("Database imported:", DEFAULT_DB_PATH);
-      Toast.show({
-        type: "success",
-        text1: "Welcome Back!",
-        text2: "Database imported successfully!",
-      });
+			Toast.show({
+				type: "success",
+				text1: "Welcome Back!",
+				text2: "Database imported successfully!",
+			});
 			router.replace("./(protected)"); // Navigate to the main app
 			await restartApp();
 		} catch (error) {
 			console.error("Error importing database:", error);
-      Toast.show({
-        type: "error",
-        text1: "Import Failed",
-        text2: "Failed to import database. Please try again.",
-      });
+			Toast.show({
+				type: "error",
+				text1: "Import Failed",
+				text2: "Failed to import database. Please try again.",
+			});
 		}
 	}
 
@@ -93,19 +171,24 @@ export default function WelcomeScreen() {
 			db = await SQLite.openDatabaseAsync(resolvedDbPath);
 
 			// Execute schema statements
-			for (const statement of schemaStatements) {
-				await db.execAsync(statement);
+			for (const schemaStatement of databaseDefinition) {
+				await db.execAsync(schemaStatement);
+			}
+
+			// Execute insert statements
+			for (const insert of insertStatements) {
+				await db.execAsync(insert);
 			}
 
 			// Close connection before proceeding
 			await db.closeAsync();
 
 			console.log("Database created at:", resolvedDbPath);
-      Toast.show({
-        type: "success",
-        text1: "Welcome Aboard!",
-        text2: "Database created successfully!",
-      });
+			Toast.show({
+				type: "success",
+				text1: "Welcome Aboard!",
+				text2: "Database created successfully!",
+			});
 
 			setDBExists(true);
 			router.replace("./(protected)");
